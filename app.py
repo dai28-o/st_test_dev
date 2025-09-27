@@ -1,9 +1,7 @@
 from datetime import datetime
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 
 
@@ -65,18 +63,16 @@ def generate_sample_data():
 
 
 def render_charts(data: pd.DataFrame):
-    st.subheader("時系列ラインチャート (Plotly)")
-    line_fig = px.line(data, x="date", y="value", color="category", title="サンプル時系列データ")
-    st.plotly_chart(line_fig, use_container_width=True)
+    st.subheader("時系列ラインチャート (Streamlit)")
+    line_chart_data = (
+        data.pivot_table(index="date", columns="category", values="value", aggfunc="mean")
+        .sort_index()
+    )
+    st.line_chart(line_chart_data, use_container_width=True)
 
-    st.subheader("カテゴリ別バーチャート (Matplotlib)")
-    category_counts = data.groupby("category")["value"].mean().reset_index()
-    fig, ax = plt.subplots()
-    ax.bar(category_counts["category"], category_counts["value"], color=["#1f77b4", "#ff7f0e", "#2ca02c"])
-    ax.set_xlabel("カテゴリ")
-    ax.set_ylabel("平均値")
-    ax.set_title("カテゴリ別平均値")
-    st.pyplot(fig)
+    st.subheader("カテゴリ別バーチャート (Streamlit)")
+    category_means = data.groupby("category")["value"].mean().sort_index()
+    st.bar_chart(category_means, use_container_width=True)
 
 
 def render_map():
